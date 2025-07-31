@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zellin Auto Parts - Live Inventory & Customer Service Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .demo-badge {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            min-height: calc(100vh - 100px);
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .panel-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: #333;
+        }
+
+        .search-container {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            font-size: 1rem;
+            background: #f8fafc;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.7rem 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-50%) scale(1.05);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .results-container {
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .results-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .results-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .results-container::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 10px;
+        }
+
+        .product-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            border-color: #667eea;
+        }
+
+        .product-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .detail-label {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .detail-value {
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .stock-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stock-high {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+
+        .stock-medium {
+            background: #faf089;
+            color: #744210;
+        }
+
+        .stock-low {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+
+        .stock-out {
+            background: #feb2b2;
+            color: #742a2a;
+        }
+
+        .inventory-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            overflow-x: auto;
+        }
+
+        .filter-tab {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .filter-tab.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border-color: transparent;
+        }
+
+        .filter-tab:hover:not(.active) {
+            border-color: #667eea;
+            background: #f7fafc;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #718096;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e2e8f0;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #742a2a;
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .demo-info {
+            background: #e6fffa;
+            border: 1px solid #81e6d9;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            font-size: 0.9rem;
+            color: #234e52;
+        }
+
+        .demo-info strong {
+            color: #065f46;
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+                gap: 1rem;
+            }
+
+            .nav-container {
+                padding: 0 1rem;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .inventory-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .product-details {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: rgba(255, 255, 255, 0.8);
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .github-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: white;
+            text-decoration: none;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .github-link:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="nav-container">
+            <div class="logo">
+                🚗 Zellin Auto Parts
+            </div>
+            <div class="demo-badge">
+                Live Demo
+            </div>
+        </div>
+    </header>
+
+    <div class="main-container">
+        <!-- Customer Service Panel -->
+        <div class="panel">
+            <h2 class="panel-title">
+                🎧 Customer Service Search
+            </h2>
+            
+            <div class="demo-info">
+                <strong>Demo Mode:</strong> This simulates real-time product lookup that customer service agents use. 
+                Search for items like "brake", "honda", "oil", or "filter" to see results.
+            </div>
+
+            <div class="search-container">
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    id="customerSearch"
+                    placeholder="Search for parts (e.g., brake pads Honda Civic)..."
+                    onkeypress="handleCustomerSearchEnter(event)"
+                >
+                <button class="search-btn" onclick="searchCustomerService()">
+                    🔍 Search
+                </button>
+            </div>
+
+            <div id="customerResults" class="results-container">
+                <div style="text-align: center; color: #718096; padding: 2rem;">
+                    👆 Enter a search term to find products for customers
+                </div>
+            </div>
+        </div>
+
+        <!-- Inventory Panel -->
+        <div class="panel">
+            <h2 class="panel-title">
+                📦 Live Inventory System
+            </h2>
+
+            <div class="demo-info">
+                <strong>Real-time Sync:</strong> This inventory updates automatically from Google Sheets connected to your Aronium POS system.
+            </div>
+
+            <div class="inventory-stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalProducts">1,574</div>
+                    <div class="stat-label">Total Products</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="lowStockCount">23</div>
+                    <div class="stat-label">Low Stock Items</div>
+                </div>
+            </div>
+
+            <div class="filter-tabs">
+                <div class="filter-tab active" onclick="filterInventory('all')">All Items</div>
+                <div class="filter-tab" onclick="filterInventory('low')">Low Stock</div>
+                <div class="filter-tab" onclick="filterInventory('out')">Out of Stock</div>
+                <div class="filter-tab" onclick="filterInventory('honda')">Honda Parts</div>
+                <div class="filter-tab" onclick="filterInventory('brake')">Brake Parts</div>
+            </div>
+
+            <div id="inventoryResults" class="results-container">
+                <div class="loading">Loading inventory data...</div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div>
+            <h3>🚀 Zellin Technology Ltd - POS Integration Demo</h3>
+            <p>Unified AI-powered customer service & inventory management</p>
+            <a href="https://github.com/your-repo" class="github-link" target="_blank">
+                📂 View on GitHub
+            </a>
+        </div>
+    </footer>
+
+    <script>
+        // Sample data for demo (in production, this comes from your Google Sheets API)
+        const sampleProducts = [
+            {
+                id: 1,
+                name: "Honda Civic Brake Pads Front Set 2014-2018",
+                code: "BP-HC-2014F",
+                price: 89.99,
+                stock: 12,
+                category: "Brake Parts",
+                brand: "Honda",
+                description: "OEM quality ceramic brake pads"
+            },
+            {
+                id: 2,
+                name: "Honda Civic Alternator 2016-2019",
+                code: "ALT-HC-2016",
+                price: 245.00,
+                stock: 3,
+                category: "Electrical",
+                brand: "Honda",
+                description: "120A alternator, remanufactured"
+            },
+            {
+                id: 3,
+                name: "Universal Engine Oil Filter",
+                code: "OF-UNIV-001",
+                price: 12.50,
+                stock: 45,
+                category: "Filters",
+                brand: "Universal",
+                description: "Fits most Honda, Toyota, Nissan"
+            },
+            {
+                id: 4,
+                name: "Honda Civic Rear Brake Rotors 2014-2018",
+                code: "BR-HC-2014R",
+                price: 125.99,
+                stock: 0,
+                category: "Brake Parts",
+                brand: "Honda",
+                description: "Drilled and slotted performance rotors"
+            },
+            {
+                id: 5,
+                name: "Toyota Camry Air Filter 2018-2023",
+                code: "AF-TC-2018",
+                price: 18.99,
+                stock: 28,
+                category: "Filters",
+                brand: "Toyota",
+                description: "High-flow performance air filter"
+            },
+            {
+                id: 6,
+                name: "Honda Accord Transmission Fluid",
+                code: "TF-HA-ATF",
+                price: 35.99,
+                stock: 8,
+                category: "Fluids",
+                brand: "Honda",
+                description: "Genuine Honda ATF-DW1 fluid"
+            }
+        ];
+
+        let currentFilter = 'all';
+
+        // Initialize the demo
+        document.addEventListener('DOMContentLoaded', function() {
+            loadInventoryData();
+            updateStats();
+        });
+
+        function searchCustomerService() {
+            const searchTerm = document.getElementById('customerSearch').value.toLowerCase().trim();
+            const resultsContainer = document.getElementById('customerResults');
+            
+            if (!searchTerm) {
+                resultsContainer.innerHTML = '<div style="text-align: center; color: #718096; padding: 2rem;">👆 Please enter a search term</div>';
+                return;
+            }
+
+            // Show loading
+            resultsContainer.innerHTML = '<div class="loading">Searching products...</div>';
+
+            // Simulate API delay
+            setTimeout(() => {
+                const filteredProducts = sampleProducts.filter(product => 
+                    product.name.toLowerCase().includes(searchTerm) ||
+                    product.code.toLowerCase().includes(searchTerm) ||
+                    product.category.toLowerCase().includes(searchTerm) ||
+                    product.brand.toLowerCase().includes(searchTerm) ||
+                    product.description.toLowerCase().includes(searchTerm)
+                );
+
+                displayCustomerResults(filteredProducts, searchTerm);
+            }, 800);
+        }
+
+        function displayCustomerResults(products, searchTerm) {
+            const resultsContainer = document.getElementById('customerResults');
+            
+            if (products.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="error-message">
+                        No products found for "${searchTerm}". Try searching for "brake", "honda", "oil", or "filter".
+                    </div>
+                `;
+                return;
+            }
+
+            const productsHtml = products.map(product => `
+                <div class="product-card" onclick="selectProduct(${product.id})">
+                    <div class="product-name">${product.name}</div>
+                    <div class="product-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Code:</span>
+                            <span class="detail-value">${product.code}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Price:</span>
+                            <span class="detail-value">$${product.price.toFixed(2)}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Stock:</span>
+                            <span class="detail-value">
+                                ${product.stock} units
+                                <span class="stock-badge ${getStockClass(product.stock)}">
+                                    ${getStockStatus(product.stock)}
+                                </span>
+                            </span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Category:</span>
+                            <span class="detail-value">${product.category}</span>
+                        </div>
+                    </div>
+                    <div style="margin-top: 0.5rem; color: #718096; font-size: 0.9rem;">
+                        ${product.description}
+                    </div>
+                </div>
+            `).join('');
+
+            resultsContainer.innerHTML = `
+                <div style="margin-bottom: 1rem; color: #667eea; font-weight: 600;">
+                    Found ${products.length} results for "${searchTerm}"
+                </div>
+                ${productsHtml}
+            `;
+        }
+
+        function filterInventory(filter) {
+            // Update active tab
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            currentFilter = filter;
+            
+            const resultsContainer = document.getElementById('inventoryResults');
+            resultsContainer.innerHTML = '<div class="loading">Filtering inventory...</div>';
+
+            setTimeout(() => {
+                let filteredProducts = [...sampleProducts];
+
+                switch(filter) {
+                    case 'low':
+                        filteredProducts = filteredProducts.filter(p => p.stock > 0 && p.stock <= 10);
+                        break;
+                    case 'out':
+                        filteredProducts = filteredProducts.filter(p => p.stock === 0);
+                        break;
+                    case 'honda':
+                        filteredProducts = filteredProducts.filter(p => p.brand.toLowerCase().includes('honda'));
+                        break;
+                    case 'brake':
+                        filteredProducts = filteredProducts.filter(p => p.category.toLowerCase().includes('brake'));
+                        break;
+                    case 'all':
+                    default:
+                        // Show all
+                        break;
+                }
+
+                displayInventoryResults(filteredProducts);
+            }, 500);
+        }
+
+        function loadInventoryData() {
+            // Simulate initial data load
+            setTimeout(() => {
+                displayInventoryResults(sampleProducts);
+            }, 1000);
+        }
+
+        function displayInventoryResults(products) {
+            const resultsContainer = document.getElementById('inventoryResults');
+            
+            if (products.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div style="text-align: center; color: #718096; padding: 2rem;">
+                        No products match the current filter
+                    </div>
+                `;
+                return;
+            }
+
+            const productsHtml = products.map(product => `
+                <div class="product-card">
+                    <div class="product-name">${product.name}</div>
+                    <div class="product-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Code:</span>
+                            <span class="detail-value">${product.code}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Price:</span>
+                            <span class="detail-value">$${product.price.toFixed(2)}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Stock:</span>
+                            <span class="detail-value">
+                                ${product.stock} units
+                                <span class="stock-badge ${getStockClass(product.stock)}">
+                                    ${getStockStatus(product.stock)}
+                                </span>
+                            </span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Brand:</span>
+                            <span class="detail-value">${product.brand}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            resultsContainer.innerHTML = productsHtml;
+        }
+
+        function updateStats() {
+            const totalProducts = sampleProducts.length;
+            const lowStockItems = sampleProducts.filter(p => p.stock > 0 && p.stock <= 10).length;
+            
+            document.getElementById('totalProducts').textContent = totalProducts.toLocaleString();
+            document.getElementById('lowStockCount').textContent = lowStockItems;
+        }
+
+        function getStockClass(stock) {
+            if (stock === 0) return 'stock-out';
+            if (stock <= 5) return 'stock-low';
+            if (stock <= 15) return 'stock-medium';
+            return 'stock-high';
+        }
+
+        function getStockStatus(stock) {
+            if (stock === 0) return 'Out of Stock';
+            if (stock <= 5) return 'Critical';
+            if (stock <= 15) return 'Low Stock';
+            return 'In Stock';
+        }
+
+        function selectProduct(productId) {
+            const product = sampleProducts.find(p => p.id === productId);
+            alert(`Selected: ${product.name}\nStock: ${product.stock} units\nPrice: $${product.price}\n\nIn a real system, this would:\n• Add to quote/order\n• Check availability\n• Show detailed specs`);
+        }
+
+        function handleCustomerSearchEnter(event) {
+            if (event.key === 'Enter') {
+                searchCustomerService();
+            }
+        }
+
+        // Simulate real-time updates (in production, this would be WebSocket or polling)
+        setInterval(() => {
+            // Randomly update stock levels to show real-time sync
+            const randomProduct = sampleProducts[Math.floor(Math.random() * sampleProducts.length)];
+            const change = Math.floor(Math.random() * 3) - 1; // -1, 0, or 1
+            randomProduct.stock = Math.max(0, randomProduct.stock + change);
+            
+            // Update display if currently showing
+            if (currentFilter === 'all' || 
+                (currentFilter === 'low' && randomProduct.stock <= 10) ||
+                (currentFilter === 'out' && randomProduct.stock === 0)) {
+                // Refresh display
+                updateStats();
+            }
+        }, 10000); // Update every 10 seconds
+    </script>
+</body>
+</html>
